@@ -1,0 +1,77 @@
+
+
+
+
+
+arguments: C:\\Users\\stavros\\Desktop\\Astrea\ Project\\Debug\\GLApi.exe
+Current dir: C:\Users\stavros\Desktop\Astrea Project\GLApi
+File verbosity level: 9
+date       time         ( uptime  ) [ thread name/id ]                   file:line     v| 
+2020-01-27 20:14:27.123 (   0.133s) [main thread     ]             loguru.cpp:798   INFO| Logging to '../logs/opengl_dev_log.txt', mode: 'a', verbosity: 9
+2020-01-27 20:14:28.058 (   1.068s) [main thread     ]            Sandbox.cpp:47     ERR| Failed to Init GLAD!
+2020-01-27 20:14:28.073 (   1.083s) [main thread     ]             loguru.cpp:494   INFO| atexit
+
+
+
+
+
+arguments: C:\\Users\\stavros\\Desktop\\Astrea\ Project\\Debug\\GLApi.exe
+Current dir: C:\Users\stavros\Desktop\Astrea Project\GLApi
+File verbosity level: 9
+date       time         ( uptime  ) [ thread name/id ]                   file:line     v| 
+2020-01-27 20:19:58.929 (   0.131s) [main thread     ]             loguru.cpp:798   INFO| Logging to '../logs/opengl_dev_log.txt', mode: 'a', verbosity: 9
+2020-01-27 20:19:59.809 (   1.011s) [main thread     ]            Sandbox.cpp:58     ERR| Failed to Init GLAD!
+2020-01-27 20:19:59.823 (   1.025s) [main thread     ]             loguru.cpp:494   INFO| atexit
+
+
+
+
+
+arguments: C:\\Users\\stavros\\Desktop\\Astrea\ Project\\Debug\\GLApi.exe
+Current dir: C:\Users\stavros\Desktop\Astrea Project\GLApi
+File verbosity level: 9
+date       time         ( uptime  ) [ thread name/id ]                   file:line     v| 
+2020-01-27 20:23:50.902 (   0.132s) [main thread     ]             loguru.cpp:798   INFO| Logging to '../logs/opengl_dev_log.txt', mode: 'a', verbosity: 9
+2020-01-27 20:23:53.096 (   2.326s) [main thread     ]             loguru.cpp:494   INFO| atexit
+
+
+
+
+
+arguments: C:\\Users\\stavros\\Desktop\\Astrea\ Project\\Debug\\GLApi.exe
+Current dir: C:\Users\stavros\Desktop\Astrea Project\GLApi
+File verbosity level: 9
+date       time         ( uptime  ) [ thread name/id ]                   file:line     v| 
+2020-01-27 20:35:17.257 (   0.136s) [main thread     ]             loguru.cpp:798   INFO| Logging to '../logs/opengl_dev_log.txt', mode: 'a', verbosity: 9
+
+
+
+
+
+arguments: C:\\Users\\stavros\\Desktop\\Astrea\ Project\\Debug\\GLApi.exe
+Current dir: C:\Users\stavros\Desktop\Astrea Project\GLApi
+File verbosity level: 9
+date       time         ( uptime  ) [ thread name/id ]                   file:line     v| 
+2020-01-27 20:35:47.641 (   0.134s) [main thread     ]             loguru.cpp:798   INFO| Logging to '../logs/opengl_dev_log.txt', mode: 'a', verbosity: 9
+
+
+
+
+
+arguments: C:\\Users\\stavros\\Desktop\\Astrea\ Project\\Debug\\GLApi.exe
+Current dir: C:\Users\stavros\Desktop\Astrea Project\GLApi
+File verbosity level: 9
+date       time         ( uptime  ) [ thread name/id ]                   file:line     v| 
+2020-01-27 20:37:33.065 (   0.187s) [main thread     ]             loguru.cpp:798   INFO| Logging to '../logs/opengl_dev_log.txt', mode: 'a', verbosity: 9
+2020-01-27 20:37:53.680 (  20.802s) [main thread     ]             loguru.cpp:494   INFO| atexit
+
+
+
+
+
+arguments: C:\\Users\\stavros\\Desktop\\Astrea\ Project\\Debug\\GLApi.exe
+Current dir: C:\Users\stavros\Desktop\Astrea Project\GLApi
+File verbosity level: 9
+date       time         ( uptime  ) [ thread name/id ]                   file:line     v| 
+2020-01-27 20:38:55.928 (   0.129s) [main thread     ]             loguru.cpp:798   INFO| Logging to '../logs/opengl_dev_log.txt', mode: 'a', verbosity: 9
+2020-01-27 20:39:27.403 (  31.604s) [main thread     ]             loguru.cpp:494   INFO| atexit
