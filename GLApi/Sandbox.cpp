@@ -1,16 +1,66 @@
 #include <loguru.hpp>
+
 #include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtc/type_ptr.hpp>
+
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
+
+
+#include "Shader.h"
+#include "Camera.h"
+#include "AstreaAssetDefinitions.h"
+
+#include <assimp/Importer.hpp>
+#define STB_IMAGE_IMPLEMENTATION
+#include "stb_image.h"
 
 #ifdef NDEBUG
 #define DBG
 #else
 #define DBG LOG_SCOPE_FUNCTION(INFO)
 #endif
+
 const int WIDTH = 800;
 const int HEIGHT = 600;
 
+Camera camera(glm::vec3(0.0f, 0.0f, 3.0f));
+float lastX = WIDTH / 2.0f;
+float lastY = HEIGHT / 2.0f;
+
+bool firstMouse = true;
+
+void scroll_callback(GLFWwindow * window, double xoffset, double yoffset)
+{
+    camera.ProcessMouseScroll(yoffset);
+}
+
+
+void mouse_callback(GLFWwindow * window, double xpos, double ypos)
+{
+    if (firstMouse)
+    {
+        lastX = xpos;
+        lastY = ypos;
+        firstMouse = false;
+    }
+
+    float xoffset = xpos - lastX;
+    float yoffset = lastY - ypos; // reversed since y-coordinates go from bottom to top
+
+    lastX = xpos;
+    lastY = ypos;
+
+    camera.ProcessMouseMovement(xoffset, yoffset);
+}
+
+glm::vec3 cameraPos = glm::vec3(0.0f, 0.0f, 6.0f);
+glm::vec3 cameraFront = glm::vec3(0.0f, 0.0f, -1.0f);
+glm::vec3 cameraUp = glm::vec3(0.0f, 1.0f, 0.0f);
+
+float deltaTime = 0.0f;	// Time between current frame and last frame
+float lastFrame = 0.0f; // Time of last frame
 
 void debugCallback(int error, const char* description)
 {
@@ -24,14 +74,27 @@ void framebuffer_size_callback(GLFWwindow* window, int width, int height)
 	glViewport(0, 0, width, height);
 }
 
-static void key_callback(GLFWwindow* window)
+static void processInput(GLFWwindow* window)
 {
     if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
         glfwSetWindowShouldClose(window, true);
+
+    const float cameraSpeed = 2.5f * deltaTime;; // adjust accordingly
+    if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
+        cameraPos += cameraSpeed * cameraFront;
+    if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
+        cameraPos -= cameraSpeed * cameraFront;
+    if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
+        cameraPos -= glm::normalize(glm::cross(cameraFront, cameraUp)) * cameraSpeed;
+    if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
+        cameraPos += glm::normalize(glm::cross(cameraFront, cameraUp)) * cameraSpeed;
+
 }
+float currentFrame = glfwGetTime();
 
 int main(int argc, char* argv[])
 {
+    float fov = 44.0f;
     loguru::init(argc, argv);
     LOG_IF_F(ERROR, loguru::add_file("../logs/opengl_dev_log.txt", loguru::Append, loguru::Verbosity_MAX) == false, "Failed to create Log file");
     glfwInit();
@@ -39,6 +102,8 @@ int main(int argc, char* argv[])
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
+    lastX = WIDTH / 2;
+    lastY = HEIGHT / 2;
 
     GLFWwindow* window = glfwCreateWindow(WIDTH, HEIGHT, "LearnOpenGL", NULL, NULL);
     if (window == NULL)
@@ -57,99 +122,61 @@ int main(int argc, char* argv[])
         LOG_F(ERROR, "Failed to initialize GLAD!");
         return -1;
     }
+    glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+    glfwSetCursorPosCallback(window, mouse_callback);
+    glfwSetScrollCallback(window, scroll_callback);
+    glEnable(GL_DEPTH_TEST);
     //Do stuff
-    float vertices[] = {
-     0.5f,  0.5f, 0.0f,  // top right
-     0.5f, -0.5f, 0.0f,  // bottom right
-    -0.5f, -0.5f, 0.0f,  // bottom left
-    -0.5f,  0.5f, 0.0f   // top left 
-    };
-    unsigned int indices[] = {  // note that we start from 0!
-        0, 1, 3,  // first Triangle
-        1, 2, 3   // second Triangle
-    };
-    unsigned int VBO, VAO, EBO;
-    glGenVertexArrays(1, &VAO);
-    glGenBuffers(1, &VBO);
-    glGenBuffers(1, &EBO);
-    // bind the Vertex Array Object first, then bind and set vertex buffer(s), and then configure vertex attributes(s).
-    glBindVertexArray(VAO);
-
-    glBindBuffer(GL_ARRAY_BUFFER, VBO);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
-
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
-
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
-    glEnableVertexAttribArray(0);
-
-    // note that this is allowed, the call to glVertexAttribPointer registered VBO as the vertex attribute's bound vertex buffer object so afterwards we can safely unbind
-    glBindBuffer(GL_ARRAY_BUFFER, 0);
-
-    // remember: do NOT unbind the EBO while a VAO is active as the bound element buffer object IS stored in the VAO; keep the EBO bound.
-    //glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
-
-    // You can unbind the VAO afterwards so other VAO calls won't accidentally modify this VAO, but this rarely happens. Modifying other
-    // VAOs requires a call to glBindVertexArray anyways so we generally don't unbind VAOs (nor VBOs) when it's not directly necessary.
-    glBindVertexArray(0);
-    //unsigned int vao, vbo, ebo;
-
-    //float data[] =
-    //{
-    //       -0.5f, -0.5f, 0.0f,
-    //        0.5f, -0.5f, 0.0f,
-    //        0.0f,  0.5f, 0.0f
-    //};
-
-    //unsigned int indices[]
-    //{
-    //    0, 1, 3,
-    //    1, 2, 3
-    //};
-
-    ////vao
-    //glGenVertexArrays(1, &vao);
-    //glBindVertexArray(vao);
-
-    //glGenBuffers(1, &vbo);
-    //glGenBuffers(1, &ebo);
-
-    //glBindBuffer(GL_ARRAY_BUFFER, vbo);
-    //glBufferData(GL_ARRAY_BUFFER, sizeof(data), data, GL_STATIC_DRAW);
-
-    //glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo);
-    //glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
- 
-
-
-
-    //glBindBuffer(GL_ARRAY_BUFFER, 0);
-    //glBindVertexArray(0);
-
-    //End of Do stuff
-    // render loop
-    // -----------
-    while (!glfwWindowShouldClose(window))
+    // set up vertex data (and buffer(s)) and configure vertex attributes
+    // ------------------------------------------------------------------
+    Shader ourShader("../shaders/gl/shader.vert", "../shaders/gl/shader.frag");
+    Astrea::Assets::Model ourModel("../models/assimp-db/model-db/Obj/Spider/spider.obj");
+    float currentFrame = glfwGetTime();
+    float rotation_degrees = 0.0f;
+    while(!glfwWindowShouldClose(window))
     {
+        deltaTime = currentFrame - lastFrame;
+
+        rotation_degrees += 45.0f * deltaTime;
+
         // input
         // -----
-        key_callback(window);
+        processInput(window);
 
         // render
         // ------
-        glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
-        glClear(GL_COLOR_BUFFER_BIT);
+        glClearColor(0.05f, 0.05f, 0.05f, 1.0f);
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-        glBindVertexArray(VAO); // seeing as we only have a single VAO there's no need to bind it every time, but we'll do so to keep things a bit more organized
-        //glDrawArrays(GL_TRIANGLES, 0, 6);
-        glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+        // don't forget to enable shader before setting uniforms
+        ourShader.use();
+
+        // view/projection transformations
+        glm::mat4 projection = glm::perspective(glm::radians(camera.Zoom), (float)WIDTH / (float)HEIGHT, 0.1f, 100.0f);
+        glm::mat4 view = camera.GetViewMatrix();
+        ourShader.setMat4("projection", projection);
+        ourShader.setMat4("view", view);
+
+        // render the loaded model
+        glm::mat4 model = glm::mat4(1.0f);
+
+
+        model = glm::scale(model, glm::vec3(0.005f, 0.005f, 0.005f));	// it's a bit too big for our scene, so scale it down
+        model = glm::translate(model, glm::vec3(0.0f, -1.75f, 0.0f)); // translate it down so it's at the center of the scene
+ 
+
+        ourShader.setMat4("model", model);
+        ourModel.Draw(ourShader);
+
 
         // glfw: swap buffers and poll IO events (keys pressed/released, mouse moved etc.)
         // -------------------------------------------------------------------------------
         glfwSwapBuffers(window);
         glfwPollEvents();
+        lastFrame = currentFrame;
     }
+
+
 
     // glfw: terminate, clearing all previously allocated GLFW resources.
     // ------------------------------------------------------------------

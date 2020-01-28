@@ -11,7 +11,7 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Optick", "Optick\Optick.vcx
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "GLApi", "GLApi\GLApi.vcxproj", "{DEF464BD-B87C-4209-B0B4-6B1E8272BCDD}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "GLAD", "GLAD\GLAD.vcxproj", "{F4F6B8B6-FD03-41E1-B6F2-3EF400856EDE}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "LibGlad", "GLAD\GLAD.vcxproj", "{F4F6B8B6-FD03-41E1-B6F2-3EF400856EDE}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
